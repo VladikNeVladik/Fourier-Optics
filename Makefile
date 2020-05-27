@@ -11,13 +11,14 @@ CCFLAGS += -std=c++11 -Werror -Wall -O3 -mavx -pthread
 default : compile
 
 install : 
+	git clone https://github.com/rogersce/cnpy.git src/vendor/cnpy
 	mkdir -p src/vendor/cnpy/build bin res
 	cd src/vendor/cnpy/build && cmake ..
 	cd src/vendor/cnpy/build && sudo make && sudo make install
 
 clean : 
-	cd src/vendor/cnpy/build && make clean
-	rm -rf src/vendor/cnpy/build bin res
+	- cd src/vendor/cnpy/build && make clean
+	rm -rf src/vendor/cnpy bin res
 
 #============
 # CNPY STUFF 
