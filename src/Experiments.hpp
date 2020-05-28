@@ -42,7 +42,7 @@ double optical_density_2(uint32_t x, uint32_t z, uint32_t wave_z) { return 0.0; 
 
 std::complex<double> transition_function(uint32_t x, uint32_t z, uint32_t wave_z)
 {
-	if (z == SIZE_Z/8) return std::polar(1 + 0.5 * std::sin(16.0 * M_PI * ((double) x) / SIZE_X), 0.0);
+	if (z == SIZE_Z/8) return std::polar(1 + 0.5 * std::sin(8.0 * M_PI * ((double) x) / SIZE_X), 0.0);
 	else               return 1.0;
 }
 
