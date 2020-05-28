@@ -41,7 +41,7 @@ void fast_fourier_transform(std::complex<double>* src, std::complex<double>* dst
 	{	
 		// Level characteristics:
 		uint32_t group_size = SIZE_X >> level;
-		uint32_t entry_size = SIZE_X >> (level + 1);		
+		uint32_t entry_size = group_size >> 1;		
 
 		// Twiddles:
 		std::complex<double> level_twiddle = roots_of_unity[level];
@@ -98,9 +98,10 @@ void propagate(std::complex<double>* spectrum)
 		// Fix the missing 1/N in the straight-FFT
 		spectrum[j] /= SIZE_X;
 
-		double k_x = WAVELENGTH / LENGTH_X * j;
+		std::complex<double>  k_x = WAVELENGTH / LENGTH_X * j;
+		std::complex<double> sqrt = std::conj(std::sqrt(1.0 - k_x*k_x));
 
-		spectrum[j] *= std::polar(1.0, std::sqrt(1.0 - k_x*k_x));
+		spectrum[j] *= std::exp(std::complex<double>(0.0, 1.0) * sqrt);
 	}
 }
 
@@ -114,7 +115,7 @@ void apply_screen(std::complex<double>* amps, uint32_t z, uint32_t wave_z)
 		// Optical density:
 		double n0 = optical_density_0(x, z, wave_z);
 		double n2 = optical_density_2(x, z, wave_z);
-		double n = n0 + n2 * std::norm(amps[x]);
+		double n = n0 + n2 * norm(amps[x]);
 
 		// Phases:
 		phase_cur = phase_nxt;
@@ -122,11 +123,12 @@ void apply_screen(std::complex<double>* amps, uint32_t z, uint32_t wave_z)
 		else                 phase_nxt = arg(amps[x + 1]);
 
 		// Spatial spectrum component:
-		double   j = (phase_nxt - phase_cur) * SIZE_X/(2.0 * M_PI);
-		double k_x = WAVELENGTH / LENGTH_X * j;
+		double                  j = (phase_nxt - phase_cur) * SIZE_X/(2.0 * M_PI);
+		std::complex<double>  k_x = WAVELENGTH / LENGTH_X * j;
+		std::complex<double> sqrt = std::conj(std::sqrt(1.0 - k_x*k_x));
 
 		// Account turbulence:
-		amps[x] *= std::polar(1.0, (n - 1) * std::sqrt(1.0 - k_x*k_x));
+		amps[x] *= std::exp(std::complex<double>(0.0, 1.0) * (n - 1) * sqrt);
 
 		// Account transition properties of media:
 		amps[x] *= transition_function(x, z, wave_z);

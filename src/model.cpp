@@ -105,6 +105,16 @@ int main(int argc, char* argv[])
 			// Return back to the filed values:
 			fast_fourier_transform(spectrum, amps, roots_of_unity_str);
 
+			// if (z >= 512)
+			// {
+			// 	for (uint32_t x = 0; x < SIZE_X; ++x)
+			// 	{
+			// 		printf("amps[%d, %d] = (%lf, %lf)\n", x, wave_z, real(amps[x]), imag(amps[x]));
+			// 	}
+				
+			// 	while (getchar() != ' ');
+			// }	
+
 			// Apply amplitude and phase screen: 
 			apply_screen(amps, z, wave_z);
 
@@ -115,7 +125,7 @@ int main(int argc, char* argv[])
 			for (uint32_t x = 0; x < SIZE_X; ++x)
 			{
 				amps[x] *= std::polar(1.0, std::real(errors[x]));
-			}
+			}; 
 		}
 	}
 
