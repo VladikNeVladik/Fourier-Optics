@@ -99,7 +99,7 @@ void propagate(std::complex<double>* spectrum)
 		spectrum[j] /= SIZE_X;
 
 		std::complex<double>  k_x = WAVELENGTH / LENGTH_X * j;
-		std::complex<double> sqrt = std::conj(std::sqrt(1.0 - k_x*k_x));
+		std::complex<double> sqrt = std::conj(std::sqrt(1.0 - k_x*k_x) / ((double) WAVE_SIZE_Z));
 
 		spectrum[j] *= std::exp(std::complex<double>(0.0, 1.0) * sqrt);
 	}

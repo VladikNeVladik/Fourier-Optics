@@ -81,30 +81,54 @@ int main(int argc, char* argv[])
 	}
 
 	// Fourier test:
-	std::complex<double>* test_amps = (std::complex<double>*) calloc(SIZE_X, sizeof(*test_amps));
-	if (test_amps == nullptr)
-	{
-		printf("Unable to allocate memory for test amplitudes");
-		exit(EXIT_FAILURE);
-	}
+	// std::complex<double>* test_amps = (std::complex<double>*) calloc(SIZE_X, sizeof(*test_amps));
+	// if (test_amps == nullptr)
+	// {
+	// 	printf("Unable to allocate memory for test amplitudes");
+	// 	exit(EXIT_FAILURE);
+	// }
 
-	for (uint32_t x = 0; x < )
+	// for (uint32_t x = 0; x < SIZE_X; ++x)
+	// {
+	// 	test_amps[x] = std::polar(1.0, 1.0 * (0.01 * x));
+	// }
 
-	std::complex<double>* test_spectrum = (std::complex<double>*) calloc(SIZE_X, sizeof(*test_spectrum));
-	if (test_spectrum == nullptr)
-	{
-		printf("Unable to allocate memory for test spectrum");
-		exit(EXIT_FAILURE);
-	}
+	// std::complex<double>* test_spectrum = (std::complex<double>*) calloc(SIZE_X, sizeof(*test_spectrum));
+	// if (test_spectrum == nullptr)
+	// {
+	// 	printf("Unable to allocate memory for test spectrum");
+	// 	exit(EXIT_FAILURE);
+	// }
 
-	fast_fourier_transform(test_amps, test_spectrum, roots_of_unity_rev);
+	// while (1)
+	// {
+	// 	for (uint32_t x = 0; x < 23; ++x)
+	// 	{	
+	// 		printf("amp[%2d] = (%lf, %lf)\n", x, real(test_amps[x]), imag(test_amps[x]));
+	// 	}
+		
+	// 	while (getchar() != ' ');
 
-	for (uint32_t j = 0; j < 32; ++j)
-	{
-		printf("spectrum[%2d] = (%lf, %lf)\n", j, real(spectrum[j]), imag(spectrum[j]));
-	}
-	
-	while (getchar() != ' ');
+	// 	fast_fourier_transform(test_amps, test_spectrum, roots_of_unity_rev);
+
+	// 	for (uint32_t j = 0; j < 32; ++j)
+	// 	{
+	// 		printf("spectrum[%2d] = (%lf, %lf)\n", j, real(test_spectrum[j]), imag(test_spectrum[j]));
+	// 	}
+		
+	// 	while (getchar() != ' ');
+
+	// 	propagate(test_spectrum);
+
+	// 	for (uint32_t j = 0; j < 32; ++j)
+	// 	{
+	// 		printf("spectrum[%2d] = (%lf, %lf)\n", j, real(test_spectrum[j]), imag(test_spectrum[j]));
+	// 	}
+		
+	// 	while (getchar() != ' ');
+
+	// 	fast_fourier_transform(test_spectrum, test_amps, roots_of_unity_rev);
+	// }
 
 	// Perform computation:
 	for (uint32_t z = 0; z < SIZE_Z; ++z)
@@ -125,41 +149,11 @@ int main(int argc, char* argv[])
 			// Obtain spatial spectrum
 			fast_fourier_transform(amps, spectrum, roots_of_unity_rev);
 
-			// if (z >= 512)
-			// {
-			// 	for (uint32_t x = 0; x < 32; ++x)
-			// 	{
-			// 		printf("spectrum[%2d, %3d] = (%lf, %lf)\n", x, z, real(spectrum[x]), imag(spectrum[x]));
-			// 	}
-				
-			// 	while (getchar() != ' ');
-			// }
-
-			// Perform propagation in the media:
+			// Perform propagation in the medium:
 			propagate(spectrum);
-
-			// if (z >= 512)
-			// {
-			// 	for (uint32_t x = 0; x < 32; ++x)
-			// 	{
-			// 		printf("spectrum[%2d, %3d] = (%lf, %lf)\n", x, z, real(spectrum[x]), imag(spectrum[x]));
-			// 	}
-				
-			// 	while (getchar() != ' ');
-			// }
 
 			// Return back to the filed values:
 			fast_fourier_transform(spectrum, amps, roots_of_unity_str);
-
-			// if (z >= 512)
-			// {
-			// 	for (uint32_t x = 0; x < 16; ++x)
-			// 	{
-			// 		printf("amps[%2d, %3d] = (%lf, %lf)\n", x, z, real(amps[x]), imag(amps[x]));
-			// 	}
-				
-			// 	while (getchar() != ' ');
-			// }
 
 			// Apply amplitude and phase screen: 
 			apply_screen(amps, z, wave_z);

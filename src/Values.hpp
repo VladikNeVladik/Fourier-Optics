@@ -15,8 +15,8 @@
 // Constants
 //-----------
 
-const double LENGTH_X   = 10.0; // meters (L)
-const double WAVELENGTH =  0.1; // meters (lambda)   
+const double LENGTH_X   = 1.0; // meters (L)
+const double WAVELENGTH = 0.1; // meters (lambda)   
 
 const uint32_t LOG_X  = 12;         // !!! Remember the reverse-bit-order precedure !!!
 const uint32_t SIZE_X = 1 << LOG_X; // <no dim> (N)
