@@ -40,7 +40,7 @@ compile : ${MODEL_SRC}
 # TESTS
 #=======
 
-RES_FOLDER = ~/Work/Phystech/2019-2020/ВПВ/Фурье-Оптика
+RES_FOLDER = res
 
 test_vacuum:
 	g++ -D EXPERIMENT_VACUUM ${CCFLAGS} ${MODEL_SRC} -o ${MODEL_EXE} ${LINK_TO_CNPY_FLAGS}
