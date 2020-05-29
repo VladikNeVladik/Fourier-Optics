@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <fenv.h> 
+
 int main(int argc, char* argv[])
 {
 	if (argc != 2)
@@ -16,7 +18,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Initialize data points:
-	double* data_points = (double*) calloc(SIZE_Z * SIZE_X * 2, sizeof(*data_points));
+	double* data_points = (double*) calloc(SIZE_Z * 2, sizeof(*data_points));
 	if (data_points == nullptr)
 	{
 		printf("Unable to allocate memory for data points");
@@ -40,8 +42,8 @@ int main(int argc, char* argv[])
 
 	for (uint32_t level = 0; level < LOG_X; ++level)
 	{
-		roots_of_unity_str[level] = std::polar(1.0, +(2.0 * M_PI)/(1 << (1 + level)));
-		roots_of_unity_rev[level] = std::polar(1.0, -(2.0 * M_PI)/(1 << (1 + level)));
+		roots_of_unity_str[level] = std::polar(1.0, +(2.0 * M_PI)/(2 << level));
+		roots_of_unity_rev[level] = std::polar(1.0, -(2.0 * M_PI)/(2 << level));
 	}
 
 	// Initialise complex amplitudes:
@@ -80,55 +82,15 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	// Fourier test:
-	// std::complex<double>* test_amps = (std::complex<double>*) calloc(SIZE_X, sizeof(*test_amps));
-	// if (test_amps == nullptr)
-	// {
-	// 	printf("Unable to allocate memory for test amplitudes");
-	// 	exit(EXIT_FAILURE);
-	// }
+	// Delete previous saved data:
+	cnpy::npy_save(argv[1], data_points, {0, SIZE_X, 2}, "w");
 
-	// for (uint32_t x = 0; x < SIZE_X; ++x)
-	// {
-	// 	test_amps[x] = std::polar(1.0, 1.0 * (0.01 * x));
-	// }
-
-	// std::complex<double>* test_spectrum = (std::complex<double>*) calloc(SIZE_X, sizeof(*test_spectrum));
-	// if (test_spectrum == nullptr)
-	// {
-	// 	printf("Unable to allocate memory for test spectrum");
-	// 	exit(EXIT_FAILURE);
-	// }
-
-	// while (1)
-	// {
-	// 	for (uint32_t x = 0; x < 23; ++x)
-	// 	{	
-	// 		printf("amp[%2d] = (%lf, %lf)\n", x, real(test_amps[x]), imag(test_amps[x]));
-	// 	}
-		
-	// 	while (getchar() != ' ');
-
-	// 	fast_fourier_transform(test_amps, test_spectrum, roots_of_unity_rev);
-
-	// 	for (uint32_t j = 0; j < 32; ++j)
-	// 	{
-	// 		printf("spectrum[%2d] = (%lf, %lf)\n", j, real(test_spectrum[j]), imag(test_spectrum[j]));
-	// 	}
-		
-	// 	while (getchar() != ' ');
-
-	// 	propagate(test_spectrum);
-
-	// 	for (uint32_t j = 0; j < 32; ++j)
-	// 	{
-	// 		printf("spectrum[%2d] = (%lf, %lf)\n", j, real(test_spectrum[j]), imag(test_spectrum[j]));
-	// 	}
-		
-	// 	while (getchar() != ' ');
-
-	// 	fast_fourier_transform(test_spectrum, test_amps, roots_of_unity_rev);
-	// }
+	// Set rounding mode:
+	if (fesetround(FE_TOWARDZERO) != 0)
+	{
+		printf("Unable to update rounding mode");
+		exit(EXIT_FAILURE);
+	}
 
 	// Perform computation:
 	for (uint32_t z = 0; z < SIZE_Z; ++z)
@@ -136,13 +98,6 @@ int main(int argc, char* argv[])
 		printf("Computed %7.2fm out of %7.2fm\r", z * WAVELENGTH, SIZE_Z * WAVELENGTH);
 		fflush(stdout);
 
-		// Aggregate results:
-		for (uint32_t x = 0; x < SIZE_X; ++x)
-		{
-			data_points[2 * (SIZE_X * z + x) + 0] = std::norm(amps[x]);
-			data_points[2 * (SIZE_X * z + x) + 1] = std::arg(amps[x]);	
-		}
-		
 		// Perform computations on sub-wave scale:
 		for (uint32_t wave_z = 0; wave_z < WAVE_SIZE_Z; ++wave_z)
 		{
@@ -159,18 +114,28 @@ int main(int argc, char* argv[])
 			apply_screen(amps, z, wave_z);
 
 			// Add errors:
-			phase_error_spectrum(error_spectrum);
-			fast_fourier_transform(error_spectrum, errors, roots_of_unity_str);
+			// phase_error_spectrum(error_spectrum);
+			// fast_fourier_transform(error_spectrum, errors, roots_of_unity_str);
 
+			// for (uint32_t x = 0; x < SIZE_X; ++x)
+			// {
+			// 	amps[x] *= std::polar(1.0, std::real(errors[x]));
+			// }
+		}
+
+		// Aggregate results:
+		if (z % AGGREGATE_OVER == 0)
+		{
 			for (uint32_t x = 0; x < SIZE_X; ++x)
 			{
-				amps[x] *= std::polar(1.0, std::real(errors[x]));
-			}; 
+				data_points[2 * x + 0] = std::norm(amps[x]);
+				data_points[2 * x + 1] = std::arg (amps[x]);	
+			}
+
+			// Save aggregated data:
+			cnpy::npy_save(argv[1], data_points, {1, SIZE_X, 2}, "a");
 		}
 	}
-
-	// Save aggregated data:
-	cnpy::npy_save(argv[1], data_points, {SIZE_Z, SIZE_X, 2}, "w");
 
 	// Free all memory:
 	free(data_points);
